@@ -70,8 +70,13 @@ task main(){
       } else {
         lurched = false;
       }
-    // Unused Button
+    // Taunt Button
     } else if (J1TOPHAT(BTN_A)) {
+      for (int i = 0; i < 5; i++) {
+        servo[ScoopGate] = SCOOPGATE_OPEN;
+        delay(5000);
+        servo[ScoopGate] = SCOOPGATE_CLOSED;
+      }
     // Elevator Stage 1 (Up)
     } else if (J1BUTTON(BTN_LB)) {
       motor[ElevStage1] = ELEVSTAGE1_SPEED;
