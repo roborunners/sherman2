@@ -15,7 +15,6 @@
 #include "constants.h"
 #include "macros.h"
 #include "config.h"
-
 #include "JoystickDriver.c"
 
 /* Initialize Robot */
@@ -100,8 +99,18 @@ task main(){
       } else {
         lurched = false;
       }
-    /* Taunt Button */
+    /* (Backwards) Lurch Button */
     } else if (J1BUTTON(BTN_A) || J2BUTTON(BTN_A)) {
+      if (!lurched) {
+        motor[TreadLeft]  = -LURCH_SPEED;
+        motor[TreadRight] = -LURCH_SPEED;
+        delay(LURCH_TIME);
+        motor[TreadLeft]  = OFF;
+        motor[TreadRight] = OFF;
+        lurched = true;
+      } else {
+        lurched = false;
+      }
     }
 
     /* Elevator Stage 1 (Up) */
