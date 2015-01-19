@@ -1,12 +1,13 @@
 #pragma config(Hubs,  S1, HTMotor,  HTMotor,  HTServo,  none)
+#pragma config(Sensor, S1,     ,               sensorI2CMuxController)
 #pragma config(Sensor, S4,     IRSeeker,       sensorHiTechnicIRSeeker1200)
 #pragma config(Motor,  mtr_S1_C1_1,     ElevStage1,    tmotorTetrix, openLoop, reversed)
 #pragma config(Motor,  mtr_S1_C1_2,     ElevStage2,    tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C2_1,     TreadLeft,     tmotorTetrix, openLoop, reversed, driveLeft)
 #pragma config(Motor,  mtr_S1_C2_2,     TreadRight,    tmotorTetrix, openLoop, driveRight)
 #pragma config(Servo,  srvo_S1_C3_1,    ScoopGate,            tServoStandard)
-#pragma config(Servo,  srvo_S1_C3_2,    servo2,               tServoNone)
-#pragma config(Servo,  srvo_S1_C3_3,    servo3,               tServoNone)
+#pragma config(Servo,  srvo_S1_C3_2,    TrailerHookLeft,      tServoStandard)
+#pragma config(Servo,  srvo_S1_C3_3,    TrailerHookRight,     tServoStandard)
 #pragma config(Servo,  srvo_S1_C3_4,    servo4,               tServoNone)
 #pragma config(Servo,  srvo_S1_C3_5,    servo5,               tServoNone)
 #pragma config(Servo,  srvo_S1_C3_6,    servo6,               tServoNone)
@@ -17,18 +18,18 @@
 #include "config.h"
 
 void setup() {
-  return;
+  servo[ScoopGate]        = SCOOPGATE_CLOSED;
+  servo[TrailerHookLeft]  = TRAILERHOOKLEFT_UP;
+  servo[TrailerHookRight] = TRAILERHOOKRIGHT_UP;
 }
 
 task main(){
   setup();
 
-  motor[ElevStage1] = -ELEVSTAGE1_SPEED - 50;
+  motor[ElevStage1] = -ELEVSTAGE1_SPEED - 150;
   delay(AUTO_ELEVSTAGE1_SCORE);
   motor[ElevStage1] = OFF;
-  motor[ElevStage2] = -ELEVSTAGE2_SPEED - 50;
+  motor[ElevStage2] = -ELEVSTAGE2_SPEED - 350;
   delay(AUTO_ELEVSTAGE2_SCORE);
   motor[ElevStage2] = OFF;
-
-  while (true) {};
 }
