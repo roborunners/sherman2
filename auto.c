@@ -1,4 +1,4 @@
-#pragma config(Hubs,  S1, HTMotor,  HTMotor,  HTServo,  none)
+#pragma config(Hubs,   S1, HTMotor,  HTMotor,  HTServo,  none)
 #pragma config(Sensor, S4,     IRSeeker,       sensorHiTechnicIRSeeker1200)
 #pragma config(Motor,  mtr_S1_C1_1,     ElevStage1,    tmotorTetrix, openLoop, reversed)
 #pragma config(Motor,  mtr_S1_C1_2,     ElevStage2,    tmotorTetrix, openLoop)

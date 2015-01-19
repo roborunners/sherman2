@@ -1,4 +1,4 @@
-#pragma config(Hubs,  S1, HTMotor,  HTMotor,  HTServo,  none)
+#pragma config(Hubs,   S1, HTMotor,  HTMotor,  HTServo,  none)
 #pragma config(Sensor, S1,     ,               sensorI2CMuxController)
 #pragma config(Sensor, S4,     IRSeeker,       sensorHiTechnicIRSeeker1200)
 #pragma config(Motor,  mtr_S1_C1_1,     ElevStage1,    tmotorTetrix, openLoop, reversed)
@@ -26,10 +26,10 @@ void setup() {
 task main(){
   setup();
 
-  motor[ElevStage1] = -ELEVSTAGE1_SPEED - 150;
-  delay(AUTO_ELEVSTAGE1_SCORE);
+  motor[ElevStage1] = -ELEVSTAGE1_SPEED;
+  delay(AUTO_ELEVSTAGE1_SCORE - 250);
   motor[ElevStage1] = OFF;
-  motor[ElevStage2] = -ELEVSTAGE2_SPEED - 350;
-  delay(AUTO_ELEVSTAGE2_SCORE);
+  motor[ElevStage2] = -ELEVSTAGE2_SPEED;
+  delay(AUTO_ELEVSTAGE2_SCORE - 250);
   motor[ElevStage2] = OFF;
 }
