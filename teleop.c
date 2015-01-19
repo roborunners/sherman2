@@ -5,8 +5,8 @@
 #pragma config(Motor,  mtr_S1_C2_1,     TreadLeft,     tmotorTetrix, openLoop, reversed, driveLeft)
 #pragma config(Motor,  mtr_S1_C2_2,     TreadRight,    tmotorTetrix, openLoop, driveRight)
 #pragma config(Servo,  srvo_S1_C3_1,    ScoopGate,            tServoStandard)
-#pragma config(Servo,  srvo_S1_C3_2,    servo2,               tServoNone)
-#pragma config(Servo,  srvo_S1_C3_3,    servo3,               tServoNone)
+#pragma config(Servo,  srvo_S1_C3_2,    TrailerHookLeft,      tServoStandard)
+#pragma config(Servo,  srvo_S1_C3_3,    TrailerHookRight,     tServoStandard)
 #pragma config(Servo,  srvo_S1_C3_4,    servo4,               tServoNone)
 #pragma config(Servo,  srvo_S1_C3_5,    servo5,               tServoNone)
 #pragma config(Servo,  srvo_S1_C3_6,    servo6,               tServoNone)
@@ -19,12 +19,14 @@
 #include "JoystickDriver.c"
 
 void setup() {
-  return;
+  servo[ScoopGate]        = SCOOPGATE_CLOSED;
+  servo[TrailerHookLeft]  = TRAILERHOOKLEFT_UP;
+  servo[TrailerHookRight] = TRAILERHOOKRIGHT_UP;
 }
 
 task main(){
-  volatile bool disabled = false;
-  volatile bool lurched = false;
+  volatile bool disabled         = false;
+  volatile bool lurched          = false;
   volatile int tread_sensitivity = 0;
 
   setup();
@@ -72,11 +74,6 @@ task main(){
       }
     // Taunt Button
     } else if (J1TOPHAT(BTN_A)) {
-      for (int i = 0; i < 5; i++) {
-        servo[ScoopGate] = SCOOPGATE_OPEN;
-        delay(5000);
-        servo[ScoopGate] = SCOOPGATE_CLOSED;
-      }
     // Elevator Stage 1 (Up)
     } else if (J1BUTTON(BTN_LB)) {
       motor[ElevStage1] = ELEVSTAGE1_SPEED;
@@ -111,6 +108,14 @@ task main(){
     // Scoop Gate (Closed)
     } else if (J1TOPHAT(TH_B)) {
       servo[ScoopGate] = SCOOPGATE_CLOSED;
+    // Trailer Hook (Up)
+    } else if (J1TOPHAT(TH_L)) {
+      servo[TrailerHookLeft]  = TRAILERHOOKLEFT_UP;
+      servo[TrailerHookRight] = TRAILERHOOKRIGHT_UP;
+    // Trailer Hook (Down)
+    } else if (J1TOPHAT(TH_R)) {
+      servo[TrailerHookLeft]  = TRAILERHOOKLEFT_DOWN;
+      servo[TrailerHookRight] = TRAILERHOOKRIGHT_DOWN;
     }
 
     // Left Tread (Drive) Motor
