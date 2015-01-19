@@ -31,37 +31,45 @@ task main(){
   startTask(displayDiagnostics);
   waitForStart();
 
-  servo[ScoopGate] = SCOOPGATE_OPEN;
+  // Wave servo
+  servo[ScoopGate]  = SCOOPGATE_OPEN;
   delay(AUTO_SERVO);
-  servo[ScoopGate] = SCOOPGATE_CLOSED;
+  servo[ScoopGate]  = SCOOPGATE_CLOSED;
   delay(AUTO_SERVO);
 
+  // Lift elevator (to go down ramp)
   motor[ElevStage1] = ELEVSTAGE1_SPEED;
   delay(AUTO_ELEVSTAGE1_INIT);
   motor[ElevStage1] = OFF;
 
+  // Drive forward to tube
   motor[TreadLeft]  = AUTO_TREAD_SPEED;
   motor[TreadRight] = AUTO_TREAD_SPEED;
   delay(AUTO_TREAD_TIME);
   motor[TreadLeft]  = OFF;
   motor[TreadRight] = OFF;
 
+  // Raise elevator (stage 1)
   motor[ElevStage1] = ELEVSTAGE1_SPEED;
   delay(AUTO_ELEVSTAGE1_SCORE);
   motor[ElevStage1] = OFF;
+  // Raise elevator (stage 2)
   motor[ElevStage2] = ELEVSTAGE2_SPEED;
   delay(AUTO_ELEVSTAGE2_SCORE);
   motor[ElevStage2] = OFF;
 
-  servo[ScoopGate] = SCOOPGATE_OPEN;
+  // Open scoop
+  servo[ScoopGate]  = SCOOPGATE_OPEN;
   delay(AUTO_SERVO);
+  // Lurch forward
   motor[TreadRight] = LURCH_SPEED;
   motor[TreadLeft]  = LURCH_SPEED;
   delay(LURCH_TIME);
   motor[TreadRight] = OFF;
   motor[TreadLeft]  = OFF;
   delay(AUTO_SERVO);
-  servo[ScoopGate] = SCOOPGATE_CLOSED;
+  // Close scoop
+  servo[ScoopGate]  = SCOOPGATE_CLOSED;
 
   // Stay running
   while (true) {};
