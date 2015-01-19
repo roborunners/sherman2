@@ -18,12 +18,14 @@
 
 #include "JoystickDriver.c"
 
+/* Initialize Robot */
 void setup() {
   servo[ScoopGate]        = SCOOPGATE_CLOSED;
   servo[TrailerHookLeft]  = TRAILERHOOKLEFT_UP;
   servo[TrailerHookRight] = TRAILERHOOKRIGHT_UP;
 }
 
+/* Control Loop */
 task main(){
   volatile bool disabled         = false;
   volatile bool lurched          = false;
@@ -34,33 +36,33 @@ task main(){
   waitForStart();
 
   while (true) {
+  	// Read joystick controls
     getJoystickSettings(joystick);
 
-    // Disable Button
-    if        (J1BUTTON(BTN_BACK)) {
+    /* Safety (Disable) Button */
+    if      (J1BUTTON(BTN_BACK))
       disabled = true;
-    // Enable Button
-    } else if (J1BUTTON(BTN_START)) {
+    /* Safety (Enable) Button */
+    else if (J1BUTTON(BTN_START))
       disabled = false;
-    }
-
     // If we're disabled, don't do anything.
     if (disabled) continue;
 
-    // Turn Button (Clockwise)
+    /* Turn Button (Clockwise) */
     if        (J1BUTTON(BTN_X)) {
       motor[TreadLeft]  = -TURN_SPEED;
       motor[TreadRight] = TURN_SPEED;
       delay(TURN_TIME);
       motor[TreadLeft]  = OFF;
       motor[TreadRight] = OFF;
+    /* Turn Button (Counterclockwise) */
     } else if (J1BUTTON(BTN_Y)) {
       motor[TreadLeft]  = TURN_SPEED;
       motor[TreadRight] = -TURN_SPEED;
       delay(TURN_TIME);
       motor[TreadLeft]  = OFF;
       motor[TreadRight] = OFF;
-    // Lurch Button
+    /* Lurch Button */
     } else if (J1BUTTON(BTN_B)) {
       if (!lurched) {
         motor[TreadLeft]  = LURCH_SPEED;
@@ -72,60 +74,63 @@ task main(){
       } else {
         lurched = false;
       }
-    // Taunt Button
+    /* Taunt Button */
     } else if (J1TOPHAT(BTN_A)) {
-    // Elevator Stage 1 (Up)
-    } else if (J1BUTTON(BTN_LB)) {
+    }
+
+    /* Elevator Stage 1 (Up) */
+    if        (J1BUTTON(BTN_LB)) {
       motor[ElevStage1] = ELEVSTAGE1_SPEED;
-    // Elevator Stage 1 (Down)
+    /* Elevator Stage 1 (Down) */
     } else if (J1BUTTON(BTN_LT)) {
       motor[ElevStage1] = -ELEVSTAGE1_SPEED;
-    // Elevator Stage 2 (Up)
+    /* Elevator Stage 2 (Up) */
     } else if (J1BUTTON(BTN_RB)) {
       motor[ElevStage2] = ELEVSTAGE2_SPEED;
-    // Elevator Stage 2 (Down)
+    /* Elevator Stage 2 (Down) */
     } else if (J1BUTTON(BTN_RT)) {
       motor[ElevStage2] = -ELEVSTAGE2_SPEED;
-    // Defaults
+    /* Resets */
     } else {
       motor[ElevStage1] = OFF;
       motor[ElevStage2] = OFF;
     }
 
-    // Turbo Button
+    /* Turbo Button */
     if        (J1BUTTON(BTN_LS)) {
       tread_sensitivity = TREAD_SENSITIVITY_TURBO;
-    // Precision Button
+    /* Precision Button */
     } else if (J1BUTTON(BTN_RS)) {
       tread_sensitivity = TREAD_SENSITIVITY_PRECISE;
+    /* Resets */
     } else {
       tread_sensitivity = TREAD_SENSITIVITY_NORMAL;
     }
 
-    // Scoop Gate (Open)
+    /* Scoop Gate (Open) */
     if        (J1TOPHAT(TH_U)) {
       servo[ScoopGate] = SCOOPGATE_OPEN;
-    // Scoop Gate (Closed)
+    /* Scoop Gate (Closed) */
     } else if (J1TOPHAT(TH_B)) {
       servo[ScoopGate] = SCOOPGATE_CLOSED;
-    // Trailer Hook (Up)
+    /* Trailer Hook (Up) */
     } else if (J1TOPHAT(TH_L)) {
       servo[TrailerHookLeft]  = TRAILERHOOKLEFT_UP;
       servo[TrailerHookRight] = TRAILERHOOKRIGHT_UP;
-    // Trailer Hook (Down)
+    /* Trailer Hook (Down) */
     } else if (J1TOPHAT(TH_R)) {
       servo[TrailerHookLeft]  = TRAILERHOOKLEFT_DOWN;
       servo[TrailerHookRight] = TRAILERHOOKRIGHT_DOWN;
     }
 
-    // Left Tread (Drive) Motor
+    /* Left Tread (Drive) Motor */
     if (abs(joystick.joy1_y1) > TREAD_DEADZONE) {
       motor[TreadLeft] = joystick.joy1_y1 / tread_sensitivity;
     } else {
       motor[TreadLeft] = OFF;
     }
 
-    // Right Tread (Drive) Motor
+    /* Right Tread (Drive) Motor */
     if (abs(joystick.joy1_y2) > TREAD_DEADZONE) {
       motor[TreadRight] = joystick.joy1_y2 / tread_sensitivity;
     } else {

@@ -18,13 +18,14 @@
 
 #include "JoystickDriver.c"
 
-
+/* Initialize Robot */
 void setup() {
   servo[ScoopGate]        = SCOOPGATE_CLOSED;
   servo[TrailerHookLeft]  = TRAILERHOOKLEFT_UP;
   servo[TrailerHookRight] = TRAILERHOOKRIGHT_UP;
 }
 
+/* Auto Program */
 task main(){
   setup();
   startTask(displayDiagnostics);
@@ -62,5 +63,6 @@ task main(){
   delay(AUTO_SERVO);
   servo[ScoopGate] = SCOOPGATE_CLOSED;
 
+  // Stay running
   while (true) {};
 }
