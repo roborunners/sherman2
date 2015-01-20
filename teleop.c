@@ -17,20 +17,26 @@
 #include "config.h"
 #include "JoystickDriver.c"
 
-/* Initialize Robot */
+/*
+ * Initialize Robot
+ */
 void setup() {
   servo[ScoopGate]        = SCOOPGATE_CLOSED;
   servo[TrailerHookLeft]  = TRAILERHOOKLEFT_UP;
   servo[TrailerHookRight] = TRAILERHOOKRIGHT_UP;
 }
 
-/* Control Loop */
+/*
+ * Control Loop
+ */
 task main(){
   volatile bool disabled         = false;
   volatile bool lurched          = false;
   volatile int tread_sensitivity = 0;
 
+  // Initialize
   setup();
+  // FIRST FCS
   startTask(displayDiagnostics);
   waitForStart();
 
@@ -38,48 +44,64 @@ task main(){
   	// Read joystick controls
     getJoystickSettings(joystick);
 
-    /* Safety (Disable) Button */
-    if      (J1BUTTON(BTN_BACK) || J2BUTTON(BTN_BACK))
-      disabled = true;
-    /* Safety (Enable) Button */
-    else if (J1BUTTON(BTN_START) || J2BUTTON(BTN_START))
-      disabled = false;
-    // If we're disabled, don't do anything.
-    if (disabled) continue;
+    /*
+     * Safety (1/2)
+     *
+     * Back: Toggle Safety
+     */
+    if (J1BUTTON(BTN_BACK) || J2BUTTON(BTN_BACK)) {
+      if disabled
+        disabled = false;
+    	else
+        disabled = true;
+    } else if (disabled)
+    	continue;
+    }
 
-    /* Turbo Button */
-    if        (J1BUTTON(BTN_LS)) {
+    /*
+     * Turbo/Precision (1)
+     *
+     * Left Bumper: Turbo
+     * Right Bumper: Precision
+     */
+    if (J1BUTTON(BTN_LB)) {
       tread_sensitivity = TREAD_SENSITIVITY_TURBO;
-    /* Precision Button */
-    } else if (J1BUTTON(BTN_RS)) {
+    } else if (J1BUTTON(BTN_RB)) {
       tread_sensitivity = TREAD_SENSITIVITY_PRECISE;
-    /* Resets */
     } else {
       tread_sensitivity = TREAD_SENSITIVITY_NORMAL;
     }
 
-    /* Left Tread (Drive) Motor */
+    /*
+     * Tread Drive (1)
+     *
+     * Left Joystick: Left Tread
+     * Right Joystick: Right Tread
+     */
     if (abs(joystick.joy1_y1) > TREAD_DEADZONE) {
       motor[TreadLeft] = joystick.joy1_y1 / tread_sensitivity;
     } else {
       motor[TreadLeft] = OFF;
     }
-    /* Right Tread (Drive) Motor */
     if (abs(joystick.joy1_y2) > TREAD_DEADZONE) {
       motor[TreadRight] = joystick.joy1_y2 / tread_sensitivity;
     } else {
       motor[TreadRight] = OFF;
     }
 
-    /* Turn Button (Clockwise) */
-    if        (J1BUTTON(BTN_X)) {
+    /*
+     * 90 Degree Turn (1)
+     *
+     * Left Trigger: Counterclockwise
+     * Right Trigger: Clockwise
+     */
+    if (J1BUTTON(BTN_LT)) {
       motor[TreadLeft]  = -TURN_SPEED;
       motor[TreadRight] = TURN_SPEED;
       delay(TURN_TIME);
       motor[TreadLeft]  = OFF;
       motor[TreadRight] = OFF;
-    /* Turn Button (Counterclockwise) */
-    } else if (J1BUTTON(BTN_Y)) {
+    } else if (J1BUTTON(BTN_RT)) {
       motor[TreadLeft]  = TURN_SPEED;
       motor[TreadRight] = -TURN_SPEED;
       delay(TURN_TIME);
@@ -87,7 +109,12 @@ task main(){
       motor[TreadRight] = OFF;
     }
 
-    /* Lurch Button */
+    /*
+     * Lurch (1/2)
+     *
+     * B: Forward
+     * A: Backward
+     */
     if (J1BUTTON(BTN_B) || J2BUTTON(BTN_B)) {
       if (!lurched) {
         motor[TreadLeft]  = LURCH_SPEED;
@@ -99,7 +126,6 @@ task main(){
       } else {
         lurched = false;
       }
-    /* (Backwards) Lurch Button */
     } else if (J1BUTTON(BTN_A) || J2BUTTON(BTN_A)) {
       if (!lurched) {
         motor[TreadLeft]  = -LURCH_SPEED;
@@ -113,35 +139,42 @@ task main(){
       }
     }
 
-    /* Elevator Stage 1 (Up) */
-    if        (J2BUTTON(BTN_LB)) {
+    /*
+     * Elevator (2)
+     *
+     * Left Bumper: Stage 1 Up
+     * Left Trigger: Stage 1 Down
+     * Right Bumper: Stage 2 Up
+     * Right Trigger: Stage 2 Down
+     */
+    if (J2BUTTON(BTN_LB)) {
       motor[ElevStage1] = ELEVSTAGE1_SPEED;
-    /* Elevator Stage 1 (Down) */
     } else if (J2BUTTON(BTN_LT)) {
       motor[ElevStage1] = -ELEVSTAGE1_SPEED;
-    /* Elevator Stage 2 (Up) */
     } else if (J2BUTTON(BTN_RB)) {
       motor[ElevStage2] = ELEVSTAGE2_SPEED;
-    /* Elevator Stage 2 (Down) */
     } else if (J2BUTTON(BTN_RT)) {
       motor[ElevStage2] = -ELEVSTAGE2_SPEED;
-    /* Resets */
     } else {
       motor[ElevStage1] = OFF;
       motor[ElevStage2] = OFF;
     }
 
-    /* Scoop Gate (Open) */
-    if        (J2TOPHAT(TH_U)) {
-      servo[ScoopGate] = SCOOPGATE_OPEN;
-    /* Scoop Gate (Closed) */
+    /*
+     * Servos (2)
+     *
+     * Tophat Up: Scoop Gate Open
+     * Tophat Down: Scoop Gate Closed
+     * Tophat Left: Trailer Hook Up
+     * Tophat Right: Trailer Hook Down
+     */
+    if (J2TOPHAT(TH_U)) {
+      servo[ScoopGate]        = SCOOPGATE_OPEN;
     } else if (J2TOPHAT(TH_B)) {
-      servo[ScoopGate] = SCOOPGATE_CLOSED;
-    /* Trailer Hook (Up) */
+      servo[ScoopGate]        = SCOOPGATE_CLOSED;
     } else if (J2TOPHAT(TH_L)) {
       servo[TrailerHookLeft]  = TRAILERHOOKLEFT_UP;
       servo[TrailerHookRight] = TRAILERHOOKRIGHT_UP;
-    /* Trailer Hook (Down) */
     } else if (J2TOPHAT(TH_R)) {
       servo[TrailerHookLeft]  = TRAILERHOOKLEFT_DOWN;
       servo[TrailerHookRight] = TRAILERHOOKRIGHT_DOWN;
