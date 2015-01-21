@@ -20,8 +20,11 @@
 /*
  * Initialize Robot
  */
-void setup() {
+void initialize() {
+	// Close Scoop Gate
   servo[ScoopGate]        = SCOOPGATE_CLOSED;
+
+  // Raise Trailer Hooks
   servo[TrailerHookLeft]  = TRAILERHOOKLEFT_UP;
   servo[TrailerHookRight] = TRAILERHOOKRIGHT_UP;
 }
@@ -29,17 +32,28 @@ void setup() {
 /*
  * Control Loop
  */
-task main(){
+task main() {
+	/*
+	 * Loop Variables
+	 *
+	 * disabled: status of safety (disabled or not)
+	 * lurched: if we lurched last loop (lurch timeout)
+	 * tread_sensitivity: tread sensitivity factor (turbo/precse buttons)
+	 */
   volatile bool disabled         = false;
   volatile bool lurched          = false;
   volatile int tread_sensitivity = 0;
 
-  // Initialize
-  setup();
-  // FIRST FCS
+  // Show Samantha debug
   startTask(displayDiagnostics);
+
+  // Initialize robot
+  initialize();
+
+  // Wait for FIRST FCS
   waitForStart();
 
+  // Start control loop
   while (true) {
   	// Read joystick controls
     getJoystickSettings(joystick);
@@ -50,11 +64,12 @@ task main(){
      * Back: Toggle Safety
      */
     if (J1BUTTON(BTN_BACK) || J2BUTTON(BTN_BACK)) {
-      if disabled
+      if (disabled) {
         disabled = false;
-    	else
+      } else {
         disabled = true;
-    } else if (disabled)
+      }
+    } else if (disabled) {
     	continue;
     }
 
