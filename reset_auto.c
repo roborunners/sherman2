@@ -27,9 +27,9 @@ task main(){
   setup();
 
   motor[ElevStage1] = -ELEVSTAGE1_SPEED;
-  delay(AUTO_ELEVSTAGE1_SCORE - 250);
+  delay(AUTO_ELEVSTAGE1 - 250);
   motor[ElevStage1] = OFF;
   motor[ElevStage2] = -ELEVSTAGE2_SPEED;
-  delay(AUTO_ELEVSTAGE2_SCORE - 250);
+  delay(AUTO_ELEVSTAGE2 - 150);
   motor[ElevStage2] = OFF;
 }

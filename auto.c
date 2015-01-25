@@ -18,45 +18,99 @@
 
 #include "JoystickDriver.c"
 
-/* Initialize Robot */
-void setup() {
+/*
+ * Initialize Robot
+ */
+void initialize() {
+	// Close Scoop Gate
   servo[ScoopGate]        = SCOOPGATE_CLOSED;
+
+  // Raise Trailer Hooks
   servo[TrailerHookLeft]  = TRAILERHOOKLEFT_UP;
   servo[TrailerHookRight] = TRAILERHOOKRIGHT_UP;
 }
 
-/* Auto Program */
+/*
+ * Drive State Machine
+ *
+ * Timer: T1
+ */
+void driveMachine() {
+  static int state = 0;
+
+  switch (state) {
+ 		case 0:
+  		clearTimer(T1);
+  	  motor[TreadLeft]  = AUTO_TREAD_SPEED;
+      motor[TreadRight] = AUTO_TREAD_SPEED;
+
+      state++;
+      break;
+    case 1:
+      if (time1[T1] > AUTO_TREAD_TIME) {
+  	 		motor[TreadLeft]  = OFF;
+  			motor[TreadRight] = OFF;
+
+  			state++;
+  		}
+ 			break;
+  }
+}
+
+/*
+ * Lift State Machine
+ *
+ * Timer: T2
+ */
+void liftMachine() {
+  static int state = 0;
+
+  switch (state) {
+  	case 0:
+			motor[ElevStage1] = ELEVSTAGE1_SPEED;
+			clearTimer(T2);
+
+			state++;
+   	  break;
+    case 1:
+      if (time1[T2] > AUTO_ELEVSTAGE1) {
+      	motor[ElevStage1] = OFF;
+
+   	    state++;
+   	  }
+   	  break;
+   	case 2:
+			motor[ElevStage2] = ELEVSTAGE2_SPEED;
+			clearTimer(T2);
+
+			state++;
+   	  break;
+    case 3:
+      if (time1[T2] > AUTO_ELEVSTAGE2) {
+      	motor[ElevStage] = OFF;
+
+   	    state++;
+   	  }
+   	  break;
+  }
+}
+
+/* State Machine Scheduler */
 task main(){
-  setup();
+  initialize();
   startTask(displayDiagnostics);
   waitForStart();
 
+  while (true) {
+    liftMachine();
+    driveMachine();
+  }
+/*
   // Wave servo
   servo[ScoopGate]  = SCOOPGATE_OPEN;
   delay(AUTO_SERVO);
   servo[ScoopGate]  = SCOOPGATE_CLOSED;
   delay(AUTO_SERVO);
-
-  // Lift elevator (to go down ramp)
-  motor[ElevStage1] = ELEVSTAGE1_SPEED;
-  delay(AUTO_ELEVSTAGE1_INIT);
-  motor[ElevStage1] = OFF;
-
-  // Drive forward to tube
-  motor[TreadLeft]  = AUTO_TREAD_SPEED;
-  motor[TreadRight] = AUTO_TREAD_SPEED;
-  delay(AUTO_TREAD_TIME);
-  motor[TreadLeft]  = OFF;
-  motor[TreadRight] = OFF;
-
-  // Raise elevator (stage 1)
-  motor[ElevStage1] = ELEVSTAGE1_SPEED;
-  delay(AUTO_ELEVSTAGE1_SCORE);
-  motor[ElevStage1] = OFF;
-  // Raise elevator (stage 2)
-  motor[ElevStage2] = ELEVSTAGE2_SPEED;
-  delay(AUTO_ELEVSTAGE2_SCORE);
-  motor[ElevStage2] = OFF;
 
   // Open scoop
   servo[ScoopGate]  = SCOOPGATE_OPEN;
@@ -70,7 +124,5 @@ task main(){
   delay(AUTO_SERVO);
   // Close scoop
   servo[ScoopGate]  = SCOOPGATE_CLOSED;
-
-  // Stay running
-  while (true) {};
+ */
 }
